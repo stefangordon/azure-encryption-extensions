@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AzureBlobEncryptionTests
 {
-    class TemporaryFile : IDisposable
+    public class TemporaryFile : IDisposable
     {
         public FileInfo fileInfo { get; set; }
 
