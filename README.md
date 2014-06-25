@@ -1,6 +1,6 @@
-azure-blob-encryption
+Azure Encryption Extensions
 =====================
 
 Simplifies encryption for Azure Blob Storage
 
-No release yet available.  Check back...
+Still under development...  Check back...
