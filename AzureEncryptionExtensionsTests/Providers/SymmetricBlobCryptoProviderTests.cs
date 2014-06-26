@@ -22,7 +22,7 @@ namespace AzureBlobEncryptionTests
         [TestInitialize]
         public void Initialize()
         {
-            // Prepare some random memory streams
+            // Prepare random memory streams
             Random random = new Random();
 
             byte[] bufferFirst = new byte[sampleStreamSize];

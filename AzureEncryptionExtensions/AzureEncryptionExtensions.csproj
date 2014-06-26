@@ -70,6 +70,7 @@
     <Compile Include="ConcatenatedStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\IBlobCryptoProvider.cs" />
+    <Compile Include="Providers\AsymmetricBlobCryptoProvider.cs" />
     <Compile Include="Providers\SymmetricBlobCryptoProvider.cs" />
   </ItemGroup>
   <ItemGroup>

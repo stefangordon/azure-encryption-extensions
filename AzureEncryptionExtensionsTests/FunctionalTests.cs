@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
@@ -64,7 +65,46 @@ namespace AzureBlobEncryptionTests
                     File.Delete(encryptedDestinationFile);
                 }
             }
+        }
 
+        [TestMethod]
+        public void BlockBlob_UploadDownload_Stream()
+        {
+            // Prepare random memory stream
+            Random random = new Random();
+            byte[] buffer = new byte[512];
+            random.NextBytes(buffer);
+            MemoryStream testStream = new MemoryStream(buffer);
+
+            // Get a blob reference
+            CloudStorageAccount storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("testcontainer");
+            container.CreateIfNotExists();
+            CloudBlockBlob blob = container.GetBlockBlobReference(Guid.NewGuid().ToString());
+
+            // Create provider
+            var provider = new SymmetricBlobCryptoProvider();
+
+            // Upload stream
+            blob.UploadFromStreamEncrypted(provider, testStream);
+
+            // Download stream
+            MemoryStream downloadedStream = new MemoryStream();
+            blob.DownloadToStreamEncrypted(provider, downloadedStream);
+
+            // Compare raw and decrypted streams
+            Assert.IsTrue(testStream.ToArray().SequenceEqual(downloadedStream.ToArray()));
+
+            // Download file again, without our library, to ensure it was actually encrypted
+            MemoryStream encryptedStream = new MemoryStream();
+            blob.DownloadToStream(encryptedStream);
+
+            // Delete blob
+            blob.DeleteIfExists();
+
+            // Compare raw and encrypted streams
+            Assert.IsFalse(testStream.ToArray().SequenceEqual(encryptedStream.ToArray()));
         }
 
         public string GetFileHash(string filename)

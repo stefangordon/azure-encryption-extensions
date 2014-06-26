@@ -78,7 +78,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="SymmetricBlobCryptoProviderTests.cs" />
+    <Compile Include="Providers\AsymmetricBlobCryptoProviderTests.cs" />
+    <Compile Include="Providers\SymmetricBlobCryptoProviderTests.cs" />
     <Compile Include="FunctionalTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConcatenatedStreamTests.cs" />

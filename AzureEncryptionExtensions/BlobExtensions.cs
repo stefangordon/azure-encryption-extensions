@@ -20,8 +20,17 @@ namespace AzureBlobEncryption
             using (Stream encryptedStream = provider.EncryptedStream(fileStream))
             {
                 blob.UploadFromStream(encryptedStream, accessCondition, options, operationContext);
+            }     
+        }
+
+        public static void UploadFromStreamEncrypted(this ICloudBlob blob, IBlobCryptoProvider provider, Stream stream,
+            AccessCondition accessCondition = null, BlobRequestOptions options = null,
+            OperationContext operationContext = null)
+        {
+            using (Stream encryptedStream = provider.EncryptedStream(stream))
+            {
+                blob.UploadFromStream(encryptedStream, accessCondition, options, operationContext);
             }
-            
         }
 
         public static void DownloadToFileEncrypted(this ICloudBlob blob, IBlobCryptoProvider provider, string path, FileMode mode,
