@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using AzureBlobEncryption;
@@ -81,10 +82,39 @@ namespace AzureBlobEncryptionTests
         }
 
         [TestMethod]
-        public void EncryptAndDecryptStreamWithX509Test()
+        [DeploymentItem("TestCertificates")]
+        public void EncryptAndDecryptStreamWith1024BitX509Test()
+        {
+            // Load Certificate
+            X509Certificate2 cert = new X509Certificate2("1024.pfx", string.Empty, X509KeyStorageFlags.Exportable);
+
+            EncryptAndDecryptStreamWithX509(cert);
+        }
+
+        [TestMethod]
+        [DeploymentItem("TestCertificates")]
+        public void EncryptAndDecryptStreamWith2048BitX509Test()
+        {
+            // Load Certificate
+            X509Certificate2 cert = new X509Certificate2("2048.pfx", string.Empty, X509KeyStorageFlags.Exportable);
+
+            EncryptAndDecryptStreamWithX509(cert);
+        }
+
+        [TestMethod]
+        [DeploymentItem("TestCertificates")]
+        public void EncryptAndDecryptStreamWith4096BitX509Test()
+        {
+            // Load Certificate
+            X509Certificate2 cert = new X509Certificate2("4096.pfx", string.Empty, X509KeyStorageFlags.Exportable);
+
+            EncryptAndDecryptStreamWithX509(cert);
+        }
+
+        private void EncryptAndDecryptStreamWithX509(X509Certificate2 certificate)
         {
             // Make a provider
-            IBlobCryptoProvider asymmetricProvider = new AsymmetricBlobCryptoProvider();
+            IBlobCryptoProvider asymmetricProvider = new AsymmetricBlobCryptoProvider(certificate);
 
             // In all cases we are READING from streams 
             // (read from original, read from encrypted, read from decrypted).
