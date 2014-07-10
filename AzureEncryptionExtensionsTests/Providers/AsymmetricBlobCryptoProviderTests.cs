@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AzureBlobEncryption;
 using AzureBlobEncryption.Providers;
+using AzureEncryptionExtensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AzureBlobEncryptionTests
@@ -111,10 +112,16 @@ namespace AzureBlobEncryptionTests
             EncryptAndDecryptStreamWithX509(cert);
         }
 
-        private void EncryptAndDecryptStreamWithX509(X509Certificate2 certificate)
+        [TestMethod]
+        [DeploymentItem("TestCertificates")]
+        [ExpectedException(typeof(CryptographicProviderException))]
+        public void DecryptFailsWithX509IfPrivateKeyNotLoadedTest()
         {
+            // Load Certificate
+            X509Certificate2 cert = new X509Certificate2("4096.pfx", string.Empty, X509KeyStorageFlags.Exportable);
+
             // Make a provider
-            IBlobCryptoProvider asymmetricProvider = new AsymmetricBlobCryptoProvider(certificate);
+            IBlobCryptoProvider asymmetricProvider = new AsymmetricBlobCryptoProvider(cert, false);
 
             // In all cases we are READING from streams 
             // (read from original, read from encrypted, read from decrypted).
@@ -127,7 +134,7 @@ namespace AzureBlobEncryptionTests
             Assert.IsTrue(
                 result.SequenceEqual(streamSample.ToArray()),
                 "Decrypted data does not match original data");
-        }
+        }     
 
         [TestMethod]
         public void IsActuallyEncryptedTest()
@@ -147,7 +154,25 @@ namespace AzureBlobEncryptionTests
             Assert.IsFalse(
                 result.Take(5).SequenceEqual(streamSample.ToArray().Take(5)),
                 "Encrypted stream is not encrypted");
-        }       
+        }
+
+        private void EncryptAndDecryptStreamWithX509(X509Certificate2 certificate)
+        {
+            // Make a provider
+            IBlobCryptoProvider asymmetricProvider = new AsymmetricBlobCryptoProvider(certificate);
+
+            // In all cases we are READING from streams 
+            // (read from original, read from encrypted, read from decrypted).
+            var encryptedStream = asymmetricProvider.EncryptedStream(streamSample);
+            var decryptedStream = asymmetricProvider.DecryptedStream(encryptedStream);
+
+            byte[] result = new byte[sampleStreamSize];
+            decryptedStream.Read(result, 0, result.Length);
+
+            Assert.IsTrue(
+                result.SequenceEqual(streamSample.ToArray()),
+                "Decrypted data does not match original data");
+        }
 
     }
 }

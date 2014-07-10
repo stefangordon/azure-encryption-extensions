@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using AzureEncryptionExtensions;
 
 namespace AzureBlobEncryption.Providers
 {
@@ -34,7 +35,13 @@ namespace AzureBlobEncryption.Providers
             else
                 rsa = (RSACryptoServiceProvider)certificate.PublicKey.Key;
 
-            CspBlob = rsa.ExportCspBlob(true);
+            // Export will fail if we attempt to export private when there is none
+            if (rsa.PublicOnly)
+                CspBlob = rsa.ExportCspBlob(false);
+            else
+                CspBlob = rsa.ExportCspBlob(true);
+
+            // Record the key size now as its expensive to derive from the csp blob.
             AsymmetricKeySize = rsa.KeySize;
 
             rsa.Dispose();
@@ -72,7 +79,7 @@ namespace AzureBlobEncryption.Providers
         }
 
         public System.IO.Stream DecryptedStream(System.IO.Stream streamToDecrypt)
-        {
+        {            
             using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
             {
                 // Get the AES key from the stream
@@ -133,6 +140,14 @@ namespace AzureBlobEncryption.Providers
             using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
             {
                 rsa.ImportCspBlob(cspBlob);
+
+                if (rsa.PublicOnly)
+                {
+                    throw new CryptographicProviderException(
+                        "Unable to decrypt data because the private key is not available. " +
+                        "Please instantiate an AsymmetricBlobCryptoProvider with a valid private key.");
+                }
+
                 decryptedKey = rsa.Decrypt(encryptedKey, false);
             }
 

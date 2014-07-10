@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="BlobExtensions.cs" />
     <Compile Include="ConcatenatedStream.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\IBlobCryptoProvider.cs" />
     <Compile Include="Providers\AsymmetricBlobCryptoProvider.cs" />
