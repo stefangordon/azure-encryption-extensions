@@ -107,6 +107,50 @@ namespace AzureBlobEncryptionTests
             Assert.IsFalse(testStream.ToArray().SequenceEqual(encryptedStream.ToArray()));
         }
 
+       /* [TestMethod]
+        public void PageBlob_UploadDownload_Stream()
+        {
+            // Prepare random memory stream
+            Random random = new Random();
+            byte[] buffer = new byte[4 * 1024 * 1024];
+            random.NextBytes(buffer);
+            MemoryStream testStream = new MemoryStream(buffer);
+
+            // Get a blob reference
+            CloudStorageAccount storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("testcontainer");
+            container.CreateIfNotExists();
+            CloudPageBlob blob = container.GetPageBlobReference(Guid.NewGuid().ToString());
+
+            // Create provider
+            //var provider = new SymmetricBlobCryptoProvider();
+
+            // Create an 8MB page blob
+            blob.Create(8 * 1024 * 1024);
+
+            // Write two sets of pages.
+            blob.WritePages(testStream, 0);
+            blob.WritePages(testStream, 4 * 1024 * 1024 );
+
+            // Download stream
+            MemoryStream downloadedStream = new MemoryStream();
+            blob.GetPageRanges()
+
+            // Compare raw and decrypted streams
+            Assert.IsTrue(testStream.ToArray().SequenceEqual(downloadedStream.ToArray()));
+
+            // Download file again, without our library, to ensure it was actually encrypted
+            MemoryStream encryptedStream = new MemoryStream();
+            blob.DownloadToStream(encryptedStream);
+
+            // Delete blob
+            blob.DeleteIfExists();
+
+            // Compare raw and encrypted streams
+            Assert.IsFalse(testStream.ToArray().SequenceEqual(encryptedStream.ToArray()));
+        } */
+
         public string GetFileHash(string filename)
         {
             var hash = new SHA1Managed();
