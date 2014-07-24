@@ -1,6 +1,8 @@
 Azure Encryption Extensions
 ===========================
 
+This project is still under heavy development, but check back soon!
+
 Overview
 ---------
 
