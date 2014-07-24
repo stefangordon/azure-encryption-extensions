@@ -7,8 +7,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using AzureEncryptionExtensions;
+using Newtonsoft.Json;
 
-namespace AzureBlobEncryption.Providers
+namespace AzureEncryptionExtensions.Providers
 {
     public sealed class AsymmetricBlobCryptoProvider : IBlobCryptoProvider
     {
@@ -24,6 +25,11 @@ namespace AzureBlobEncryption.Providers
                 CspBlob = rsa.ExportCspBlob(true);
                 AsymmetricKeySize = rsa.KeySize;
             }
+        }
+
+        public AsymmetricBlobCryptoProvider(byte[] cspBlob)
+        {
+            InitializeFromKeyBytes(CspBlob);
         }
 
         public AsymmetricBlobCryptoProvider(X509Certificate2 certificate, bool loadPrivateKeyIfAvailable = true)
@@ -47,15 +53,71 @@ namespace AzureBlobEncryption.Providers
             rsa.Dispose();
         }
 
+        public void InitializeFromKeyBytes(byte[] key)
+        {
+            CspBlob = key;
+
+            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+            {
+                rsa.ImportCspBlob(key);
+                AsymmetricKeySize = rsa.KeySize;
+            }
+        }
+
         public void WriteKeyFile(string path)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentNullException("path", "Must provide valid file path.");
+
+            File.WriteAllText(path, this.ToKeyFileString());
         }
 
         public string ToKeyFileString()
         {
-            //var json = new JavaScriptSerializer().Serialize(obj);
-            throw new NotImplementedException();
+            KeyFileStorage keyStorage;
+
+            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+            {
+                rsa.ImportCspBlob(CspBlob);
+
+                keyStorage = new KeyFileStorage()
+                {
+                    KeyMaterial = CspBlob,
+                    ProviderType = this.GetType().ToString(),
+                    ContainsPrivateKey = !rsa.PublicOnly
+                };                
+            }
+
+            return JsonConvert.SerializeObject(keyStorage);
+        }
+
+        public string ToKeyFileString(bool publicOnly)
+        {
+            KeyFileStorage keyStorage;
+            byte[] temporaryCspBlob;
+
+            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+            {
+                rsa.ImportCspBlob(CspBlob);
+
+                if (publicOnly && !rsa.PublicOnly)
+                {
+                    temporaryCspBlob = rsa.ExportCspBlob(false);
+                }
+                else
+                {
+                    temporaryCspBlob = CspBlob;
+                }
+
+                keyStorage = new KeyFileStorage()
+                {
+                    KeyMaterial = temporaryCspBlob,
+                    ProviderType = this.GetType().ToString(),
+                    ContainsPrivateKey = !publicOnly && !rsa.PublicOnly
+                };
+            }
+
+            return JsonConvert.SerializeObject(keyStorage);
         }
 
 

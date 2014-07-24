@@ -5,12 +5,14 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using AzureEncryptionExtensions;
+using Newtonsoft.Json;
 
-namespace AzureBlobEncryption.Providers
+namespace AzureEncryptionExtensions.Providers
 {
     public sealed class SymmetricBlobCryptoProvider : IBlobCryptoProvider
     {
-        public byte[] Key { get; set; }
+        public byte[] Key { get; private set; }
 
         public SymmetricBlobCryptoProvider()
         {
@@ -20,18 +22,32 @@ namespace AzureBlobEncryption.Providers
 
         public SymmetricBlobCryptoProvider(byte[] key)
         {
+            InitializeFromKeyBytes(key);
+        }
+
+        public void InitializeFromKeyBytes(byte[] key)
+        {
             Key = key;
         }
 
         public void WriteKeyFile(string path)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentNullException("path", "Must provide valid file path.");
+
+            File.WriteAllText(path, this.ToKeyFileString());
         }
 
         public string ToKeyFileString()
         {
-            //var json = new JavaScriptSerializer().Serialize(obj);
-            throw new NotImplementedException();
+            KeyFileStorage keyStorage = new KeyFileStorage()
+            {
+                KeyMaterial = Key,
+                ProviderType = this.GetType().ToString(),
+                ContainsPrivateKey = true
+            };
+
+            return JsonConvert.SerializeObject(keyStorage);
         }
 
 

@@ -4,11 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AzureBlobEncryption.Providers;
+using AzureEncryptionExtensions.Providers;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 
-namespace AzureBlobEncryption
+namespace AzureEncryptionExtensions
 {
     public static class BlobExtensions
     {

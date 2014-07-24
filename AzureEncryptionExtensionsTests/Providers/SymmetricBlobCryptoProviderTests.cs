@@ -5,8 +5,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using AzureBlobEncryption;
-using AzureBlobEncryption.Providers;
+using AzureEncryptionExtensions;
+using AzureEncryptionExtensions.Providers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AzureBlobEncryptionTests
@@ -83,6 +83,46 @@ namespace AzureBlobEncryptionTests
             Assert.IsFalse(
                 result.Take(5).SequenceEqual(streamSample.ToArray().Take(5)),
                 "Encrypted stream is not encrypted");
+        }
+
+        [TestMethod]
+        public void ToKeyFileStringAndBackTest()
+        {
+            IBlobCryptoProvider symmetricProvider = new SymmetricBlobCryptoProvider();
+            
+            string keyString = symmetricProvider.ToKeyFileString();
+
+            IBlobCryptoProvider clonedProvider = ProviderFactory.CreateProviderFromKeyFileString(keyString);
+
+            var encryptedStream = symmetricProvider.EncryptedStream(streamSample);
+            var decryptedStream = clonedProvider.DecryptedStream(encryptedStream);
+
+            byte[] result = new byte[sampleStreamSize];
+            decryptedStream.Read(result, 0, result.Length);
+
+            Assert.IsTrue(
+                result.SequenceEqual(streamSample.ToArray()),
+                "Decrypted data does not match original data");            
+        }
+
+        [TestMethod]
+        public void ToKeyFileAndBackTest()
+        {
+            IBlobCryptoProvider symmetricProvider = new SymmetricBlobCryptoProvider();
+
+            symmetricProvider.WriteKeyFile("keyfile.txt");
+
+            IBlobCryptoProvider clonedProvider = ProviderFactory.CreateProviderFromKeyFile("keyfile.txt");
+
+            var encryptedStream = symmetricProvider.EncryptedStream(streamSample);
+            var decryptedStream = clonedProvider.DecryptedStream(encryptedStream);
+
+            byte[] result = new byte[sampleStreamSize];
+            decryptedStream.Read(result, 0, result.Length);
+
+            Assert.IsTrue(
+                result.SequenceEqual(streamSample.ToArray()),
+                "Decrypted data does not match original data");
         }
     }
 }

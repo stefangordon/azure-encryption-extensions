@@ -1,0 +1,7 @@
+Certificates were generated with MakeCert as such:
+
+makecert -n CN=TestCert1 -r -sky 1 -len 2048 -sv 2048.pvk 2048.cer
+
+and converted to PFX using Pvk2pfx like this:
+
+PVK2PFX –pvk 2048.pvk –spc 2048.cer –pfx 2048.pfx –po yourpfxpassword

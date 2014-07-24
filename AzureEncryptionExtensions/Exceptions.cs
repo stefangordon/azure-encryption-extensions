@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AzureBlobEncryption.Providers;
+using AzureEncryptionExtensions.Providers;
 
 namespace AzureEncryptionExtensions
 {
@@ -19,6 +19,15 @@ namespace AzureEncryptionExtensions
     public class InvalidEncryptedStreamException : Exception
     {
         public InvalidEncryptedStreamException(string message)
+            : base(message)
+        {
+
+        }
+    }
+
+    public class InvalidKeyFileException : Exception
+    {
+        public InvalidKeyFileException(string message)
             : base(message)
         {
 

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AzureBlobEncryption;
+using AzureEncryptionExtensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AzureBlobEncryptionTests

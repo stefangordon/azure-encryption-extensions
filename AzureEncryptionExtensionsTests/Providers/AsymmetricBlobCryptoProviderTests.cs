@@ -6,9 +6,8 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using AzureBlobEncryption;
-using AzureBlobEncryption.Providers;
 using AzureEncryptionExtensions;
+using AzureEncryptionExtensions.Providers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AzureBlobEncryptionTests
@@ -154,6 +153,130 @@ namespace AzureBlobEncryptionTests
             Assert.IsFalse(
                 result.Take(5).SequenceEqual(streamSample.ToArray().Take(5)),
                 "Encrypted stream is not encrypted");
+        }
+
+        [TestMethod]
+        public void ToKeyFileStringAndBackTest()
+        {
+            IBlobCryptoProvider asymmetricProvider = new AsymmetricBlobCryptoProvider();
+
+            string keyString = asymmetricProvider.ToKeyFileString();
+
+            IBlobCryptoProvider clonedProvider = ProviderFactory.CreateProviderFromKeyFileString(keyString);
+
+            var encryptedStream = asymmetricProvider.EncryptedStream(streamSample);
+            var decryptedStream = clonedProvider.DecryptedStream(encryptedStream);
+
+            byte[] result = new byte[sampleStreamSize];
+            decryptedStream.Read(result, 0, result.Length);
+
+            Assert.IsTrue(
+                result.SequenceEqual(streamSample.ToArray()),
+                "Decrypted data does not match original data");
+        }
+
+        [TestMethod]
+        [DeploymentItem("TestCertificates")]
+        public void ToKeyFileStringCertificateTest()
+        {
+            // Load Certificate
+            X509Certificate2 cert = new X509Certificate2("4096.pfx", string.Empty, X509KeyStorageFlags.Exportable);
+
+            // Make a provider
+            IBlobCryptoProvider asymmetricProvider = new AsymmetricBlobCryptoProvider(cert, true);
+
+            string keyString = asymmetricProvider.ToKeyFileString();
+
+            // Clone a new provider from exported keyfile
+            IBlobCryptoProvider clonedProvider = ProviderFactory.CreateProviderFromKeyFileString(keyString);
+
+            // Run an encryption loop using the two providers
+            var encryptedStream = asymmetricProvider.EncryptedStream(streamSample);
+            var decryptedStream = clonedProvider.DecryptedStream(encryptedStream);
+
+            byte[] result = new byte[sampleStreamSize];
+            decryptedStream.Read(result, 0, result.Length);
+
+            Assert.IsTrue(
+                result.SequenceEqual(streamSample.ToArray()),
+                "Decrypted data does not match original data");
+        }
+
+        [TestMethod]
+        [DeploymentItem("TestCertificates")]
+        public void ToKeyFileStringPublicOnlyCertificateTest()
+        {
+            // Load Certificate
+            X509Certificate2 cert = new X509Certificate2("4096.pfx", string.Empty, X509KeyStorageFlags.Exportable);
+
+            // Make a provider
+            AsymmetricBlobCryptoProvider asymmetricProvider = new AsymmetricBlobCryptoProvider(cert, true);
+
+            string keyString = asymmetricProvider.ToKeyFileString(true);
+
+            // Clone a new provider from exported keyfile
+            IBlobCryptoProvider clonedProvider = ProviderFactory.CreateProviderFromKeyFileString(keyString);
+
+            // Run an encryption loop using the two providers
+            // Should be able to encrypt with the public only clone, and decrypt with the original
+            var encryptedStream = clonedProvider.EncryptedStream(streamSample);
+            var decryptedStream = asymmetricProvider.DecryptedStream(encryptedStream);
+
+            byte[] result = new byte[sampleStreamSize];
+            decryptedStream.Read(result, 0, result.Length);
+
+            Assert.IsTrue(
+                result.SequenceEqual(streamSample.ToArray()),
+                "Decrypted data does not match original data");
+        }
+
+        [TestMethod]
+        [DeploymentItem("TestCertificates")]
+        [ExpectedException(typeof(CryptographicProviderException))]
+        public void ToKeyFileStringDecryptFailsWithNoPrivateKeyTest()
+        {
+            // Load Certificate
+            X509Certificate2 cert = new X509Certificate2("4096.pfx", string.Empty, X509KeyStorageFlags.Exportable);
+
+            // Make a provider
+            AsymmetricBlobCryptoProvider asymmetricProvider = new AsymmetricBlobCryptoProvider(cert, true);
+
+            string keyString = asymmetricProvider.ToKeyFileString(true);
+
+            // Clone a new provider from exported keyfile
+            IBlobCryptoProvider clonedProvider = ProviderFactory.CreateProviderFromKeyFileString(keyString);
+
+            // Run an encryption loop using the cloned provider
+            // which should not have a private key (And thus fail).
+            var encryptedStream = clonedProvider.EncryptedStream(streamSample);
+            var decryptedStream = clonedProvider.DecryptedStream(encryptedStream);
+
+            byte[] result = new byte[sampleStreamSize];
+            decryptedStream.Read(result, 0, result.Length);
+
+            Assert.IsTrue(
+                result.SequenceEqual(streamSample.ToArray()),
+                "Decrypted data does not match original data");
+        }
+
+        [TestMethod]
+        public void ToKeyFileAndBackTest()
+        {
+            IBlobCryptoProvider asymmetricProvider = new AsymmetricBlobCryptoProvider();
+
+            asymmetricProvider.WriteKeyFile("keyfile.txt");
+
+            IBlobCryptoProvider clonedProvider = ProviderFactory.CreateProviderFromKeyFile("keyfile.txt");
+
+            var encryptedStream = asymmetricProvider.EncryptedStream(streamSample);
+            var decryptedStream = clonedProvider.DecryptedStream(encryptedStream);
+
+            byte[] result = new byte[sampleStreamSize];
+            decryptedStream.Read(result, 0, result.Length);
+
+            Assert.IsTrue(
+                result.SequenceEqual(streamSample.ToArray()),
+                "Decrypted data does not match original data");
         }
 
         private void EncryptAndDecryptStreamWithX509(X509Certificate2 certificate)

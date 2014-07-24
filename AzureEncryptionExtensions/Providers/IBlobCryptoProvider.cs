@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AzureBlobEncryption.Providers
+namespace AzureEncryptionExtensions.Providers
 {
     public interface IBlobCryptoProvider
     {
@@ -15,5 +15,7 @@ namespace AzureBlobEncryption.Providers
 
         void WriteKeyFile(String path);
         String ToKeyFileString();
+
+        void InitializeFromKeyBytes(byte[] key);
     }
 }
