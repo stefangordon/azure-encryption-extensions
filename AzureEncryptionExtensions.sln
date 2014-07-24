@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30324.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureEncryptionExtensions", "AzureEncryptionExtensions\AzureEncryptionExtensions.csproj", "{088245CA-F9B0-44DE-8790-34017BE203A7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureEncryptionExtensionsTest", "AzureEncryptionExtensionsTests\AzureEncryptionExtensionsTest.csproj", "{FDA97BA0-64B5-4572-AE9E-AE5BB4FE2253}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureEncryptionSample", "AzureEncryptionSample\AzureEncryptionSample.csproj", "{881A6518-B5D6-4853-8680-CFB91D82F189}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{FDA97BA0-64B5-4572-AE9E-AE5BB4FE2253}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDA97BA0-64B5-4572-AE9E-AE5BB4FE2253}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDA97BA0-64B5-4572-AE9E-AE5BB4FE2253}.Release|Any CPU.Build.0 = Release|Any CPU
+		{881A6518-B5D6-4853-8680-CFB91D82F189}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{881A6518-B5D6-4853-8680-CFB91D82F189}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{881A6518-B5D6-4853-8680-CFB91D82F189}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{881A6518-B5D6-4853-8680-CFB91D82F189}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -66,29 +66,20 @@ namespace AzureEncryptionExtensions.Providers
 
         public void WriteKeyFile(string path)
         {
+            WriteKeyFile(path, false);
+        }
+
+        public void WriteKeyFile(string path, bool publicOnly)
+        {
             if (string.IsNullOrWhiteSpace(path))
                 throw new ArgumentNullException("path", "Must provide valid file path.");
 
-            File.WriteAllText(path, this.ToKeyFileString());
+            File.WriteAllText(path, this.ToKeyFileString(publicOnly));
         }
 
         public string ToKeyFileString()
         {
-            KeyFileStorage keyStorage;
-
-            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
-            {
-                rsa.ImportCspBlob(CspBlob);
-
-                keyStorage = new KeyFileStorage()
-                {
-                    KeyMaterial = CspBlob,
-                    ProviderType = this.GetType().ToString(),
-                    ContainsPrivateKey = !rsa.PublicOnly
-                };                
-            }
-
-            return JsonConvert.SerializeObject(keyStorage);
+            return ToKeyFileString(false);
         }
 
         public string ToKeyFileString(bool publicOnly)
