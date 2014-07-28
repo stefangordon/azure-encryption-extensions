@@ -17,7 +17,7 @@ Getting Started
 
 The library provides extensions for ICloudBlob which are identical to the existing methods, but with the addition of an encryption provider parameter.  This makes it trivial to modify existing Azure Storage code to add encryption without refactoring.
 
-**Simply make sure you add the appropriate using statements.**
+**Make sure you add the appropriate using statements.**
 
 ```csharp
 using AzureEncryptionExtensions;
