@@ -17,6 +17,13 @@ Getting Started
 
 The library provides extensions for ICloudBlob which are identical to the existing methods, but with the addition of an encryption provider parameter.  This makes it trivial to modify existing Azure Storage code to add encryption without refactoring.
 
+**Simply make sure you add the appropriate using statements.**
+
+```csharp
+using AzureEncryptionExtensions;
+using AzureEncryptionExtensions.Providers;
+```
+
 Typical use is simple - create a provider and leverage one of the extension methods for uploading or download blobs instead of the standard ICloudBlob methods.
 
 Here we encrypt a blob using an X509Certificate2 as our key:
@@ -36,6 +43,24 @@ blob.DownloadToFileEncrypted(provider, destinationPath, FileMode.Create);
 
 
 Additional samples are available in the AzureEncryptionSample project in the repository.
+
+Extension Methods
+---------------
+The library attempts to make usage simple by mimicking existing commonly used BlockBlob methods.  Currently four methods are implemented for working with files **and** streams.  Files and streams are **encrypted and decrypted on-the-fly without creating temporary files.**
+
+Method signatures match the existing Microsoft.WindowsAzure.Storage ICloudBlob with the addition of a IBlobCrytoProvider parameter.
+
+To use the extension methods, add the appropriate using to your code:
+```csharp
+using AzureEncryptionExtensions;
+```
+
+| Method |
+|--------|
+|UploadFromFileEncrypted(...)|
+|UploadFromStreamEncrypted(...)|
+|DownloadToFileEncrypted(...)|
+|DownloadToStreamEncrypted(...)|
 
 Providers
 ---------
@@ -84,6 +109,46 @@ A crytographically random IV is prepended to the data for every blob written, an
 | ToKeyFileString(bool publicOnly) | Retrieve JSON blob as string instead of writing to file, and optionally limit inclusion of private key |
 
 ###SymmetricBlobCryptoProvider
-TBD.
+
+The SymmetricBlobCryptoProvider is designed for scenarios where you prefer to use the same key for encryption and decryption.  This is often more simple to manage, and performs better than the asymmetric option.  The provider performs industry standard AES encryption.  Default key size is 256bit/32 byte and the Initialization Vector is 16 random bytes unique to each blob.  You may also provide keys of length 16 bytes or 24 bytes.
+
+The provider can be instantiated with a byte array or a previously exported JSON keyfile, or can generate a secure random key for you.
 
 
+| Constructor | Description |
+|--------|--------|
+| SymmetricBlobCryptoProvider() | Will generate a crytographically random 256bit key for you.  You must save the key material for future decryption using **WriteKeyFile(...)** or similar. |
+| SymmetricBlobCryptoProvider(byte[] key) | Loads a key from a byte array.  16, 24, or 32 bytes. |
+
+
+**Regardless of how the provider was instantiated**, any of the following methods may be used to export a simple JSON representation of the key material for easy storage and future creation of compatible providers.
+
+| Method | Description |
+|--------|--------|
+| WriteKeyFile(string path) | Write public and private (if available) to file specific by path |
+| ToKeyFileString() | Retrieve JSON blob as string instead of writing to file. |
+
+###ProviderFactory
+
+The ProviderFactory simply offers utility methods to trivially recreate a provider from a previously exported JSON keyfile or string.  It will detect the provider type and create an instance for you to pass to any of the extension methods.
+
+| Method | Description |
+|--------|--------|
+| IBlobCryptoProvider CreateProviderFromKeyFileString(string keyFileData) | Create provider from JSON string. |
+| IBlobCryptoProvider CreateProviderFromKeyFile(string keyFilePath) | Create provider from JSON file. |
+
+```csharp
+// Create an Azure Encryption Extensions symmetric encryption provider
+// We are not passing any key material so a 256-bit AES key will be generated for us.
+var provider = new SymmetricBlobCryptoProvider();
+
+// Since we let the library generate a new key for us, we need to persist it somewhere
+// so we can decrypt our blob later.
+provider.WriteKeyFile("symmetricKey.dat");
+      
+      .... later
+      
+// Since we have our AES key exported we can use the provider factory to quickly
+// insantiate a provider for working with the key again
+var provider = ProviderFactory.CreateProviderFromKeyFile("symmetricKey.dat");
+```
