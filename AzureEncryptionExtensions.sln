@@ -1,13 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30324.0
-MinimumVisualStudioVersion = 10.0.40219.1
+VisualStudioVersion = 12.0.21005.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureEncryptionExtensions", "AzureEncryptionExtensions\AzureEncryptionExtensions.csproj", "{088245CA-F9B0-44DE-8790-34017BE203A7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureEncryptionExtensionsTest", "AzureEncryptionExtensionsTests\AzureEncryptionExtensionsTest.csproj", "{FDA97BA0-64B5-4572-AE9E-AE5BB4FE2253}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureEncryptionSample", "AzureEncryptionSample\AzureEncryptionSample.csproj", "{881A6518-B5D6-4853-8680-CFB91D82F189}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EB69D7E8-172F-4E20-8F67-D0E5233191DE}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,13 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// /*
+//  Copyright (c) Stefan Gordon
+//  All Rights Reserved
+//  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the
+//  License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+// 
+//  THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+//  INCLUDING WITHOUT LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+//  MERCHANTABLITY OR NON-INFRINGEMENT.
+// 
+//  See the Apache 2 License for the specific language governing permissions and limitations under the License.
+//  */
+
+#region
+
+using System;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using AzureEncryptionExtensions;
 using Newtonsoft.Json;
+
+#endregion
 
 namespace AzureEncryptionExtensions.Providers
 {
@@ -74,7 +86,7 @@ namespace AzureEncryptionExtensions.Providers
             if (string.IsNullOrWhiteSpace(path))
                 throw new ArgumentNullException("path", "Must provide valid file path.");
 
-            File.WriteAllText(path, this.ToKeyFileString(publicOnly));
+            File.WriteAllText(path, ToKeyFileString(publicOnly));
         }
 
         public string ToKeyFileString()
@@ -100,10 +112,10 @@ namespace AzureEncryptionExtensions.Providers
                     temporaryCspBlob = CspBlob;
                 }
 
-                keyStorage = new KeyFileStorage()
+                keyStorage = new KeyFileStorage
                 {
                     KeyMaterial = temporaryCspBlob,
-                    ProviderType = this.GetType().ToString(),
+                    ProviderType = GetType().ToString(),
                     ContainsPrivateKey = !publicOnly && !rsa.PublicOnly
                 };
             }
@@ -112,7 +124,7 @@ namespace AzureEncryptionExtensions.Providers
         }
 
 
-        public System.IO.Stream EncryptedStream(System.IO.Stream streamToEncrypt)
+        public Stream EncryptedStream(Stream streamToEncrypt)
         {
             using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
             {
@@ -131,7 +143,7 @@ namespace AzureEncryptionExtensions.Providers
             }
         }
 
-        public System.IO.Stream DecryptedStream(System.IO.Stream streamToDecrypt)
+        public Stream DecryptedStream(Stream streamToDecrypt)
         {            
             using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
             {
