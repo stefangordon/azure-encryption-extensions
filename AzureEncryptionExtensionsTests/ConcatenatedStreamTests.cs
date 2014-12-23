@@ -31,6 +31,7 @@ namespace AzureBlobEncryptionTests
 
         MemoryStream streamSampleOne;
         MemoryStream streamSampleTwo;
+        MemoryStream streamSampleThree;
 
         [TestInitialize]
         public void Initialize()
@@ -40,20 +41,23 @@ namespace AzureBlobEncryptionTests
 
             byte[] bufferFirst = new byte[sampleStreamSize];
             byte[] bufferSecond = new byte[sampleStreamSize];
+            byte[] bufferThird = new byte[sampleStreamSize];
 
             random.NextBytes(bufferFirst);
             random.NextBytes(bufferSecond);
+            random.NextBytes(bufferThird);
 
             streamSampleOne = new MemoryStream(bufferFirst);
             streamSampleTwo = new MemoryStream(bufferSecond);
+            streamSampleThree = new MemoryStream(bufferThird);
         }
 
         [TestMethod]
         public void ReadAllTest()
         {
-            ConcatenatedStream cStream = new ConcatenatedStream(streamSampleOne, streamSampleTwo);
+            ConcatenatedStream cStream = new ConcatenatedStream(streamSampleOne, streamSampleTwo, streamSampleThree);
 
-            int totalLength = sampleStreamSize * 2;
+            int totalLength = sampleStreamSize * 3;
 
             byte[] output = new byte[totalLength];
 
@@ -64,14 +68,18 @@ namespace AzureBlobEncryptionTests
                 "First array does not match");
 
             Assert.IsTrue(
-                output.Skip(sampleStreamSize).Take(sampleStreamSize).SequenceEqual(streamSampleTwo.ToArray()), 
+                output.Skip(sampleStreamSize).Take(sampleStreamSize).SequenceEqual(streamSampleTwo.ToArray()),
                 "Second array does not match");
+
+            Assert.IsTrue(
+                output.Skip(sampleStreamSize * 2).Take(sampleStreamSize).SequenceEqual(streamSampleThree.ToArray()),
+                "Third array does not match");
         }
 
         [TestMethod]
         public void CanReadTest()
         {
-            ConcatenatedStream cStream = new ConcatenatedStream(streamSampleOne, streamSampleTwo);
+            ConcatenatedStream cStream = new ConcatenatedStream(streamSampleOne, streamSampleTwo, streamSampleThree);
 
             int totalLength = sampleStreamSize * 2;
 
@@ -89,6 +97,10 @@ namespace AzureBlobEncryptionTests
             Assert.IsTrue(
                 output.Skip(sampleStreamSize).Take(sampleStreamSize).SequenceEqual(streamSampleTwo.ToArray()),
                 "Second array does not match");
+
+            Assert.IsTrue(
+                output.Skip(sampleStreamSize * 2).Take(sampleStreamSize).SequenceEqual(streamSampleThree.ToArray()),
+                "Third array does not match");
         }
 
     }

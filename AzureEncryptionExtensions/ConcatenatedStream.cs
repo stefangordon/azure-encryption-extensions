@@ -63,7 +63,7 @@ namespace AzureEncryptionExtensions
 
                 if (streams.Count == 0) return totalRead;
 
-                read = streams.Peek().Read(buffer, offset + read, count - totalRead);
+                read = streams.Peek().Read(buffer, offset + totalRead, count - totalRead);
                 totalRead += read;
             } 
           
