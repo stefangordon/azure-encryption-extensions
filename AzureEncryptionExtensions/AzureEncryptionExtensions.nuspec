@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>AzureEncryptionExtensions</id>
-    <version>1.0.0</version>
+    <version>1.0.0.1</version>
     <title>Azure Encryption Extensions</title>
     <authors>Stefan Gordon</authors>
     <owners>Stefan Gordon</owners>
