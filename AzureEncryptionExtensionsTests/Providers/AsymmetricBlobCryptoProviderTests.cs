@@ -21,6 +21,7 @@ using System.Security.Cryptography.X509Certificates;
 using AzureEncryptionExtensions;
 using AzureEncryptionExtensions.Providers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using AzureEncryptionExtensions.Crypto;
 
 #endregion
 
@@ -57,16 +58,23 @@ namespace AzureBlobEncryptionTests
             PrivateType pt = new PrivateType(typeof(AsymmetricBlobCryptoProvider));
 
             byte[] key = (byte[])pt.InvokeStatic("GenerateRandomKey");
-            byte[] encryptedKey = (byte[])pt.InvokeStatic("EncryptKey", new Object[] { testCspBlob, key });
-            
+            byte[] encryptedKey;
+            byte[] decryptedKey;
+
+            var rsa = new RSACryptoServiceProvider();
+            rsa.ImportCspBlob(testCspBlob);
+
+            using (ICspProxy cspProxy = new DisposingCspProxy(rsa, rsa.KeySize))
+            {
+                encryptedKey = cspProxy.Encrypt(key);
+                decryptedKey = cspProxy.Decrypt(encryptedKey);
+            }
+
             // The two keys shouldn't be the same...
             Assert.IsFalse(key.SequenceEqual(encryptedKey));
 
             // And we expect it to grow to the same size as the RSA Key
             Assert.IsTrue(encryptedKey.Length == 4096 / 8);
-
-            // Now lets try to decrypt a key
-            byte[] decryptedKey = (byte[])pt.InvokeStatic("DecryptKey", new Object[] { testCspBlob, encryptedKey });
 
             // Sanity check, it should be 256 bit / 32 bytes and not contain any zeros.
             Assert.IsTrue(decryptedKey.Length == 256/8, "Key length is incorrect");

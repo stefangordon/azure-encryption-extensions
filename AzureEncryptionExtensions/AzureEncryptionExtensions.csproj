@@ -68,6 +68,12 @@
   <ItemGroup>
     <Compile Include="BlobExtensions.cs" />
     <Compile Include="ConcatenatedStream.cs" />
+    <Compile Include="Crypto\CspProxy.cs" />
+    <Compile Include="Crypto\CspProxyFactory.cs" />
+    <Compile Include="Crypto\DisposingCspProxy.cs" />
+    <Compile Include="Crypto\ICspProxy.cs" />
+    <Compile Include="Crypto\ICspProxyFactory.cs" />
+    <Compile Include="Crypto\NonDisposingCspProxy.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="KeyFileStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
