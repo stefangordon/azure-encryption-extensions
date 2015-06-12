@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="AzureEncryptionExtensions.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

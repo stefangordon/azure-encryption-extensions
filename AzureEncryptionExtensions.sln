@@ -1,7 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureEncryptionExtensions", "AzureEncryptionExtensions\AzureEncryptionExtensions.csproj", "{088245CA-F9B0-44DE-8790-34017BE203A7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureEncryptionExtensionsTest", "AzureEncryptionExtensionsTests\AzureEncryptionExtensionsTest.csproj", "{FDA97BA0-64B5-4572-AE9E-AE5BB4FE2253}"
@@ -10,6 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureEncryptionSample", "Az
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EB69D7E8-172F-4E20-8F67-D0E5233191DE}"
 	ProjectSection(SolutionItems) = preProject
+		nuget_icon.png = nuget_icon.png
 		README.md = README.md
 	EndProjectSection
 EndProject

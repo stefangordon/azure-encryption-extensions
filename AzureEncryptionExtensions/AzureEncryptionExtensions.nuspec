@@ -2,17 +2,18 @@
 <package >
   <metadata>
     <id>AzureEncryptionExtensions</id>
-    <version>1.0.1.0</version>
+    <version>1.1.0.0</version>
     <title>Azure Encryption Extensions</title>
     <authors>Stefan Gordon</authors>
     <owners>Stefan Gordon</owners>
-    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <licenseUrl>https://github.com/stefangordon/azure-encryption-extensions/blob/master/license.md</licenseUrl>
     <projectUrl>https://github.com/stefangordon/azure-encryption-extensions</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Azure Encryption Extensions is a simple library designed to streamline the work required to encrypt data stored in Azure Blob Storage. Data is encrypted on-the-fly as it is uploaded to Azure, and decrypted as it is downloaded. Unencrypted data never leaves your machine and you can manage your keys however you'd like.</description>
-	<summary>Simple Encryption for Azure Blob Storage</summary>
-    <releaseNotes></releaseNotes>
-    <copyright>Copyright 2014</copyright>
-    <tags>Azure Encryption Blob Security</tags>
+	  <summary>Simple Encryption for Azure Blob Storage</summary>
+    <releaseNotes>Updated dependencies.  Support for Async methods.  Support for Azure worker roles with non-exportable certificates.</releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>Azure Encryption Blob Security Encrypt Storage AES</tags>
+    <iconUrl>https://raw.githubusercontent.com/stefangordon/azure-encryption-extensions/master/nuget_icon.png</iconUrl>
   </metadata>
 </package>
