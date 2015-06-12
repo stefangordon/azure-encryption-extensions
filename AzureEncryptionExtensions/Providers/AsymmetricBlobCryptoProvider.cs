@@ -18,6 +18,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Newtonsoft.Json;
+using AzureEncryptionExtensions.Crypto;
 
 #endregion
 
@@ -25,55 +26,59 @@ namespace AzureEncryptionExtensions.Providers
 {
     public sealed class AsymmetricBlobCryptoProvider : IBlobCryptoProvider
     {
-        private readonly int DefaultKeySize = 4096;
+        private static readonly int DefaultKeySize = 4096;
+        private ICspProxyFactory CspFactory;
 
-        public byte[] CspBlob { get; set; }
-        public int AsymmetricKeySize;
+        public byte[] CspBlob 
+        { 
+            get 
+            {
+                using (ICspProxy csp = CspFactory.GetProvider())
+                {
+                    return csp.KeyBlob;
+                }
+            }
+
+            set
+            {
+                InitializeFromKeyBytes(value);
+            }
+        }
+
+        public int AsymmetricKeySize
+        {
+            get
+            {
+                using (ICspProxy csp = CspFactory.GetProvider())
+                {
+                    return csp.AsymmetricKeySize;
+                }
+            }
+        }
 
         public AsymmetricBlobCryptoProvider()
+            : this(CspProxyFactory.Create(DefaultKeySize))
         {
-            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(DefaultKeySize))
-            {
-                CspBlob = rsa.ExportCspBlob(true);
-                AsymmetricKeySize = rsa.KeySize;
-            }
+        }
+
+        public void InitializeFromKeyBytes(byte[] cspBlob)
+        {
+            CspFactory = CspProxyFactory.Create(cspBlob);
+        }
+
+        private AsymmetricBlobCryptoProvider(ICspProxyFactory factory)
+        {
+            CspFactory = factory;
         }
 
         public AsymmetricBlobCryptoProvider(byte[] cspBlob)
+            : this(CspProxyFactory.Create(cspBlob))
         {
-            InitializeFromKeyBytes(CspBlob);
         }
 
         public AsymmetricBlobCryptoProvider(X509Certificate2 certificate, bool loadPrivateKeyIfAvailable = true)
+            : this(CspProxyFactory.Create(certificate, loadPrivateKeyIfAvailable))
         {
-            RSACryptoServiceProvider rsa;
-            
-            if (loadPrivateKeyIfAvailable && certificate.HasPrivateKey)
-                rsa = (RSACryptoServiceProvider)certificate.PrivateKey;
-            else
-                rsa = (RSACryptoServiceProvider)certificate.PublicKey.Key;
-
-            // Export will fail if we attempt to export private when there is none
-            if (rsa.PublicOnly)
-                CspBlob = rsa.ExportCspBlob(false);
-            else
-                CspBlob = rsa.ExportCspBlob(true);
-
-            // Record the key size now as its expensive to derive from the csp blob.
-            AsymmetricKeySize = rsa.KeySize;
-
-            rsa.Dispose();
-        }
-
-        public void InitializeFromKeyBytes(byte[] key)
-        {
-            CspBlob = key;
-
-            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
-            {
-                rsa.ImportCspBlob(key);
-                AsymmetricKeySize = rsa.KeySize;
-            }
         }
 
         public void WriteKeyFile(string path)
@@ -99,6 +104,26 @@ namespace AzureEncryptionExtensions.Providers
             KeyFileStorage keyStorage;
             byte[] temporaryCspBlob;
 
+            using (ICspProxy csp = CspFactory.GetProvider())
+            {
+                if (publicOnly)
+                {
+                    temporaryCspBlob = csp.PublicKeyBlob;
+                }
+                else
+                {
+                    temporaryCspBlob = csp.KeyBlob;
+                }
+                
+                keyStorage = new KeyFileStorage
+                {
+                    KeyMaterial = temporaryCspBlob,
+                    ProviderType = GetType().ToString(),
+                    ContainsPrivateKey = !publicOnly && !csp.IsPublicOnly
+                };
+            }
+
+            /*
             using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
             {
                 rsa.ImportCspBlob(CspBlob);
@@ -119,6 +144,7 @@ namespace AzureEncryptionExtensions.Providers
                     ContainsPrivateKey = !publicOnly && !rsa.PublicOnly
                 };
             }
+            */
 
             return JsonConvert.SerializeObject(keyStorage);
         }
@@ -127,10 +153,11 @@ namespace AzureEncryptionExtensions.Providers
         public Stream EncryptedStream(Stream streamToEncrypt)
         {
             using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
+            using (ICspProxy csp = CspFactory.GetProvider())
             {
                 // Set new key but retain randomized IV created during provider instantiation.
                 aesAlg.Key = GenerateRandomKey();
-                byte[] encryptedKey = EncryptKey(CspBlob, aesAlg.Key);
+                byte[] encryptedKey = csp.Encrypt(aesAlg.Key);
 
                 // Create an encryptor to perform the stream transform.
                 ICryptoTransform encryptor = aesAlg.CreateEncryptor();
@@ -146,6 +173,7 @@ namespace AzureEncryptionExtensions.Providers
         public Stream DecryptedStream(Stream streamToDecrypt)
         {            
             using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
+            using (ICspProxy csp = CspFactory.GetProvider())
             {
                 // Get the AES key from the stream
                 // The length will be the size of the RSA key which was used to encrypt
@@ -153,7 +181,7 @@ namespace AzureEncryptionExtensions.Providers
                 byte[] encryptedKey = new byte[AsymmetricKeySize / 8];
                 byte[] decryptedKey;
                 streamToDecrypt.Read(encryptedKey, 0, encryptedKey.Length);
-                decryptedKey = DecryptKey(CspBlob, encryptedKey);
+                decryptedKey = csp.Decrypt(encryptedKey);
 
                 // Attempt to read IV from Stream
                 byte[] ivBytes = new byte[aesAlg.BlockSize / 8];
@@ -184,8 +212,10 @@ namespace AzureEncryptionExtensions.Providers
             return key;
         }
 
-        private static byte[] EncryptKey(byte[] cspBlob, byte[] key)
+        /*
+        private static byte[] EncryptKey(ICspProxy csp, byte[] key)
         {
+
             byte[] encryptedKey;
 
             // Encrypt using RSA provider
@@ -218,5 +248,6 @@ namespace AzureEncryptionExtensions.Providers
 
             return decryptedKey;
         }
+         */
     }
 }
