@@ -33,7 +33,7 @@ namespace AzureBlobEncryptionTests
         byte[] testCspBlob;
 
         // Tests expect at least 8 bytes
-        readonly int sampleStreamSize = 512;
+        readonly int sampleStreamSize = 1024*100;
         MemoryStream streamSample;
 
         [TestInitialize]

@@ -128,6 +128,51 @@ namespace AzureBlobEncryptionTests
         }
 
         [TestMethod]
+        public void BlockBlob_UploadDownload_Stream_KeyFileString()
+        {
+            // Prepare random memory stream
+            Random random = new Random();
+            byte[] buffer = new byte[51200];
+            random.NextBytes(buffer);
+            MemoryStream testStream = new MemoryStream(buffer);
+
+            // Get a blob reference
+            CloudStorageAccount storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("testcontainer");
+            container.CreateIfNotExists();
+            String blobId = Guid.NewGuid().ToString();
+            CloudBlockBlob blob = container.GetBlockBlobReference(blobId);
+
+            // Create provider
+            var provider = new SymmetricBlobCryptoProvider();
+
+            // Upload stream
+            blob.UploadFromStreamEncrypted(provider, testStream);
+
+            // Recreate provider from keyfile string
+            var restoredProvider = ProviderFactory.CreateProviderFromKeyFileString(provider.ToKeyFileString());
+
+            // Download stream
+            MemoryStream downloadedStream = new MemoryStream();
+            CloudBlockBlob blobRestored = container.GetBlockBlobReference(blobId);
+            blobRestored.DownloadToStreamEncrypted(restoredProvider, downloadedStream);
+
+            // Compare raw and decrypted streams
+            Assert.IsTrue(testStream.ToArray().SequenceEqual(downloadedStream.ToArray()));
+
+            // Download file again, without our library, to ensure it was actually encrypted
+            MemoryStream encryptedStream = new MemoryStream();
+            blob.DownloadToStream(encryptedStream);
+
+            // Delete blob
+            blob.DeleteIfExists();
+
+            // Compare raw and encrypted streams
+            Assert.IsFalse(testStream.ToArray().SequenceEqual(encryptedStream.ToArray()));
+        }
+
+        [TestMethod]
         [DeploymentItem("TestCertificates")]
         public void BlockBlob_UploadDownload_Stream_Asymmetric()
         {
