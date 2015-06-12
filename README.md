@@ -1,5 +1,6 @@
 Azure Encryption Extensions
 ===========================
+[![Build status](https://ci.appveyor.com/api/projects/status/04cv3w0j45h0452u/branch/master?svg=true)](https://ci.appveyor.com/project/stefangordon/azure-encryption-extensions/branch/master)
 
 Overview
 ---------
