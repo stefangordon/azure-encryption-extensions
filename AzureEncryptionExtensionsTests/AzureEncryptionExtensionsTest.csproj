@@ -35,6 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AzureEncryptionExtensions, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\AzureEncryptionExtensions.1.1.0.0\lib\net45\AzureEncryptionExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Data.Edm, Version=5.6.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Data.Edm.5.6.4\lib\net40\Microsoft.Data.Edm.dll</HintPath>
@@ -79,6 +83,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AzureStorageEmulatorManager.cs" />
     <Compile Include="Providers\AsymmetricBlobCryptoProviderTests.cs" />
     <Compile Include="Providers\SymmetricBlobCryptoProviderTests.cs" />
     <Compile Include="FunctionalTests.cs" />
@@ -86,12 +91,6 @@
     <Compile Include="ConcatenatedStreamTests.cs" />
     <Compile Include="ProviderFactoryTests.cs" />
     <Compile Include="TemporaryFile.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AzureEncryptionExtensions\AzureEncryptionExtensions.csproj">
-      <Project>{088245ca-f9b0-44de-8790-34017be203a7}</Project>
-      <Name>AzureEncryptionExtensions</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
