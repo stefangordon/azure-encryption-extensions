@@ -7,7 +7,7 @@ Overview
 Azure Encryption Extensions is a simple library designed to streamline the work required to encrypt data stored in Azure Blob Storage.  Data is encrypted on-the-fly as it is uploaded to Azure, and decrypted as it is downloaded.  Unencrypted data never leaves your machine and you can manage your keys however you'd like.
 
 For the nuget package:
-https://www.nuget.org/packages/AzureEncryptionExtensions/1.0.0
+https://www.nuget.org/packages/AzureEncryptionExtensions/
 
 ```
 PM> Install-Package AzureEncryptionExtensions
