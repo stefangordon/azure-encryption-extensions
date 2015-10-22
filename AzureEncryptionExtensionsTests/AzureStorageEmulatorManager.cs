@@ -11,9 +11,9 @@ namespace AzureTableStorage.Tests
     // Credits to David Peden http://stackoverflow.com/users/607701/david-peden for sharing this!
     public static class AzureStorageEmulatorManager
     {
-        private const string _windowsAzureStorageEmulatorPath = @"C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator\WAStorageEmulator.exe";
-        private const string _win7ProcessName = "WAStorageEmulator";
-        private const string _win8ProcessName = "WASTOR~1";
+        private const string _windowsAzureStorageEmulatorPath = @"C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator\AzureStorageEmulator.exe";
+        private const string _win7ProcessName = "AzureStorageEmulator";
+        private const string _win8ProcessName = "AZURES~1";
 
         private static readonly ProcessStartInfo startStorageEmulator = new ProcessStartInfo
         {
