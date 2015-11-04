@@ -63,11 +63,16 @@ namespace AzureEncryptionSample
 
             // Upload
             Console.WriteLine(@"Encrypting and uploading image \SampleFiles\catbread.jpg");
-            Samples.UploadEncryptedFileSymmetric(@"SampleFiles\catbread.jpg", container);
+            Samples.UploadEncryptedFileAsymmetric(@"SampleFiles\catbread.jpg", certificate, container);
+
+            // Load certificate
+            // Certificates are intentionally disposed of after creating providers in most cases
+            // So we must load this again for this round-trip sample
+            certificate = new X509Certificate2(@"SampleCertificates\4096.pfx", string.Empty, X509KeyStorageFlags.Exportable);
 
             // Download
             Console.WriteLine("Downloading and decrypting file using saved key");
-            Samples.DownloadEncryptedFileSymmetric(@"decrypted_catbread2.jpg", container);
+            Samples.DownloadEncryptedFileAsymmetric(@"decrypted_catbread2.jpg", certificate, container);
         }
 
 

@@ -111,29 +111,6 @@ namespace AzureEncryptionExtensions.Providers
                 };
             }
 
-            /*
-            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
-            {
-                rsa.ImportCspBlob(CspBlob);
-
-                if (publicOnly && !rsa.PublicOnly)
-                {
-                    temporaryCspBlob = rsa.ExportCspBlob(false);
-                }
-                else
-                {
-                    temporaryCspBlob = CspBlob;
-                }
-
-                keyStorage = new KeyFileStorage
-                {
-                    KeyMaterial = temporaryCspBlob,
-                    ProviderType = GetType().ToString(),
-                    ContainsPrivateKey = !publicOnly && !rsa.PublicOnly
-                };
-            }
-            */
-
             return JsonConvert.SerializeObject(keyStorage);
         }
 
@@ -199,43 +176,5 @@ namespace AzureEncryptionExtensions.Providers
 
             return key;
         }
-
-        /*
-        private static byte[] EncryptKey(ICspProxy csp, byte[] key)
-        {
-
-            byte[] encryptedKey;
-
-            // Encrypt using RSA provider
-            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
-            {
-                rsa.ImportCspBlob(cspBlob);
-                encryptedKey = rsa.Encrypt(key, false);
-            }
-
-            return encryptedKey;
-        }
-
-        private static byte[] DecryptKey(byte[] cspBlob, byte[] encryptedKey)
-        {
-            byte[] decryptedKey;
-
-            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
-            {
-                rsa.ImportCspBlob(cspBlob);
-
-                if (rsa.PublicOnly)
-                {
-                    throw new CryptographicProviderException(
-                        "Unable to decrypt data because the private key is not available. " +
-                        "Please instantiate an AsymmetricBlobCryptoProvider with a valid private key.");
-                }
-
-                decryptedKey = rsa.Decrypt(encryptedKey, false);
-            }
-
-            return decryptedKey;
-        }
-         */
     }
 }

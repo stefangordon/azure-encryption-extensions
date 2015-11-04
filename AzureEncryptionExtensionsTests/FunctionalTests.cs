@@ -149,7 +149,7 @@ namespace AzureBlobEncryptionTests
         {
             // Prepare random memory stream
             Random random = new Random();
-            byte[] buffer = new byte[51200];
+            byte[] buffer = new byte[512];
             random.NextBytes(buffer);
             MemoryStream testStream = new MemoryStream(buffer);
 
